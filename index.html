@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://pagead2.googlesyndication.com https://*.google.com; style-src 'self'; img-src 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://pagead2.googlesyndication.com https://*.google.com; style-src 'self'; img-src 'self' https://*.google.com; connect-src 'self';">
+    <meta name="description" content="My 3 Cents Worth - A blog sharing thoughts and ideas.">
+    <meta name="robots" content="index, follow">
     <title>My 3 Cents Worth</title>
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -23,9 +25,9 @@
             </nav>
         </header>
         <main>
-            <section class="latest-post">
-                <h2>Latest Post - 2025-04-17</h2>
-                <p>This is my latest blog post. I'll share my thoughts here. Stay tuned for more!</p>
+            <section class="latest-post" id="latest-post">
+                <h2>Loading Latest Post...</h2>
+                <p>Please wait while the latest post loads.</p>
             </section>
             <div class="ad-container">
                 <!-- Google AdSense Ad -->
@@ -43,5 +45,33 @@
             </div>
         </main>
     </div>
+    <script>
+        fetch('./posts.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(posts => {
+                if (posts.length === 0) {
+                    throw new Error('No posts found in posts.json');
+                }
+                const latestPost = posts[0];
+                const latestPostSection = document.getElementById('latest-post');
+                latestPostSection.innerHTML = `
+                    <h2>Latest Post - ${latestPost.date}</h2>
+                    <p>${latestPost.content}</p>
+                `;
+            })
+            .catch(error => {
+                console.error('Error loading posts:', error);
+                const latestPostSection = document.getElementById('latest-post');
+                latestPostSection.innerHTML = `
+                    <h2>Error Loading Latest Post</h2>
+                    <p>Could not load the latest post: ${error.message}. Please try again later.</p>
+                `;
+            });
+    </script>
 </body>
 </html>

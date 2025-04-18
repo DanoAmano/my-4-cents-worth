@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://pagead2.googlesyndication.com https://*.google.com; style-src 'self'; img-src 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://pagead2.googlesyndication.com https://*.google.com; style-src 'self'; img-src 'self' https://*.google.com; connect-src 'self';">
+    <meta name="description" content="My 3 Cents Worth - Previous blog posts sharing thoughts and ideas.">
+    <meta name="robots" content="index, follow">
     <title>My 3 Cents Worth - Previous Posts</title>
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -23,16 +25,9 @@
             </nav>
         </header>
         <main>
-            <section class="previous-posts">
+            <section class="previous-posts" id="previous-posts">
                 <h2>Previous Posts</h2>
-                <div class="post">
-                    <h3>Post - 2025-04-10</h3>
-                    <p>This is an earlier post. Just some thoughts I had last week.</p>
-                </div>
-                <div class="post">
-                    <h3>Post - 2025-04-03</h3>
-                    <p>My first post! I'm new to blogging, so bear with me.</p>
-                </div>
+                <p>Loading previous posts...</p>
             </section>
             <div class="ad-container">
                 <!-- Google AdSense Ad -->
@@ -50,5 +45,43 @@
             </div>
         </main>
     </div>
+    <script>
+        fetch('./posts.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(posts => {
+                const previousPosts = posts.slice(1);
+                const previousPostsSection = document.getElementById('previous-posts');
+                if (previousPosts.length === 0) {
+                    previousPostsSection.innerHTML = `
+                        <h2>Previous Posts</h2>
+                        <p>No previous posts available.</p>
+                    `;
+                    return;
+                }
+                previousPostsSection.innerHTML = '<h2>Previous Posts</h2>';
+                previousPosts.forEach(post => {
+                    const postDiv = document.createElement('div');
+                    postDiv.className = 'post';
+                    postDiv.innerHTML = `
+                        <h3>Post - ${post.date}</h3>
+                        <p>${post.content}</p>
+                    `;
+                    previousPostsSection.appendChild(postDiv);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading posts:', error);
+                const previousPostsSection = document.getElementById('previous-posts');
+                previousPostsSection.innerHTML = `
+                    <h2>Error Loading Previous Posts</h2>
+                    <p>Could not load previous posts: ${error.message}. Please try again later.</p>
+                `;
+            });
+    </script>
 </body>
 </html>
